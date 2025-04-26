@@ -1,20 +1,13 @@
-// server.js
-
 const express = require('express');
-const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Simple API
+// Homepage
 app.get('/', (req, res) => {
-  res.send('All-in-One Downloader Server is Running!');
+  res.send('All-in-One Downloader Server Running!');
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
 });
