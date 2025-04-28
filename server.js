@@ -45,6 +45,7 @@ app.post("/download/facebook", async (req, res) => {
   }
 });
 
+// Test Route
 app.get("/", (req, res) => {
   res.send("All-in-One Downloader Server Running Successfully!");
 });
