@@ -3,26 +3,30 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware for parsing JSON
+// Middleware
 app.use(express.json());
 
-// Serve static files (HTML, CSS, JS)
+// Serve static files (public folder)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API routes
+// API Routes
 app.post('/download/instagram', async (req, res) => {
-    // Tumhara Instagram API logic
+    const { url } = req.body;
+    // Yahan tumhara Instagram download logic aayega
+    res.json({ url: url, message: "Instagram download success!" });
 });
 
 app.post('/download/facebook', async (req, res) => {
-    // Tumhara Facebook API logic
+    const { url } = req.body;
+    // Yahan tumhara Facebook download logic aayega
+    res.json({ url: url, message: "Facebook download success!" });
 });
 
-// Default route -> serve index.html
+// Default Route - frontend serve
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+    console.log(`Server running on port ${port}`);
 });
