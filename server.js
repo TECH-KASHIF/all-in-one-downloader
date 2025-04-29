@@ -1,34 +1,85 @@
+const express = require('express');
 const axios = require('axios');
-const cheerio = require('cheerio');
+const path = require('path');
+const app = express();
 
-// TikTok Downloader Route
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ---------- TikTok API ----------
 app.get('/api/tiktok', async (req, res) => {
   const videoUrl = req.query.url;
-
-  if (!videoUrl) {
-    return res.status(400).json({ error: 'URL required' });
-  }
+  if (!videoUrl) return res.status(400).json({ error: 'TikTok URL required' });
 
   try {
-    const response = await axios.get(`https://ssstik.io/en`, {
+    const apiRes = await axios.get(`https://tikwm.com/api/?url=${encodeURIComponent(videoUrl)}`);
+    if (apiRes.data?.data?.play) {
+      res.json({
+        platform: 'tiktok',
+        no_watermark: apiRes.data.data.play,
+        watermark: apiRes.data.data.wmplay,
+        thumbnail: apiRes.data.data.cover
+      });
+    } else {
+      res.status(500).json({ error: 'TikTok fetch failed' });
+    }
+  } catch {
+    res.status(500).json({ error: 'TikTok server error' });
+  }
+});
+
+// ---------- Facebook API ----------
+app.get('/api/facebook', async (req, res) => {
+  const videoUrl = req.query.url;
+  if (!videoUrl) return res.status(400).json({ error: 'Facebook URL required' });
+
+  try {
+    const apiRes = await axios.get(`https://facebookvideodownloader.online/api/video?url=${encodeURIComponent(videoUrl)}`);
+    if (apiRes.data?.links) {
+      res.json({
+        platform: 'facebook',
+        hd: apiRes.data.links.HD,
+        sd: apiRes.data.links.SD
+      });
+    } else {
+      res.status(500).json({ error: 'Facebook fetch failed' });
+    }
+  } catch {
+    res.status(500).json({ error: 'Facebook server error' });
+  }
+});
+
+// ---------- Instagram API ----------
+app.get('/api/instagram', async (req, res) => {
+  const videoUrl = req.query.url;
+  if (!videoUrl) return res.status(400).json({ error: 'Instagram URL required' });
+
+  try {
+    const apiRes = await axios.get(`https://instagram-media-downloader.p.rapidapi.com/rapid/post.php?url=${encodeURIComponent(videoUrl)}`, {
       headers: {
-        'User-Agent': 'Mozilla/5.0'
+        'X-RapidAPI-Key': 'YOUR_RAPIDAPI_KEY', // replace this
+        'X-RapidAPI-Host': 'instagram-media-downloader.p.rapidapi.com'
       }
     });
 
-    const $ = cheerio.load(response.data);
-    // Note: Actual TikTok downloaders often require form submission.
-    // For real production, you need a paid API or a server in between.
-
-    // This is a placeholder response
-    return res.json({
-      status: 'success',
-      message: 'TikTok video downloader connected (placeholder)',
-      input: videoUrl
-    });
-
-  } catch (error) {
-    console.error('TikTok error:', error);
-    res.status(500).json({ error: 'Failed to fetch TikTok video' });
+    if (apiRes.data?.media) {
+      res.json({
+        platform: 'instagram',
+        media: apiRes.data.media
+      });
+    } else {
+      res.status(500).json({ error: 'Instagram fetch failed' });
+    }
+  } catch {
+    res.status(500).json({ error: 'Instagram server error' });
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
 });
