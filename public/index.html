@@ -1,15 +1,41 @@
-<form id="tiktokForm">
-  <input type="text" id="tiktokURL" placeholder="Enter TikTok video URL">
-  <button type="submit">Download</button>
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All-in-One Downloader</title>
+</head>
+<body>
+  <h2>Select Platform</h2>
+  <select id="platform">
+    <option value="">Select Platform</option>
+    <option value="instagram">Instagram</option>
+    <option value="facebook">Facebook</option>
+    <option value="tiktok">TikTok</option>
+  </select>
 
-<script>
-  document.getElementById('tiktokForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const url = document.getElementById('tiktokURL').value;
-    const res = await fetch(`/api/tiktok?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
-    alert(JSON.stringify(data));
-  });
-</script>
-<option value="tiktok">TikTok</option>
+  <h2>Paste URL</h2>
+  <input type="text" id="url" placeholder="Paste the video URL here" />
+
+  <button onclick="download()">Download</button>
+
+  <script>
+    async function download() {
+      const platform = document.getElementById("platform").value;
+      const url = document.getElementById("url").value;
+
+      if (!platform || !url) {
+        alert("Please select platform and enter URL");
+        return;
+      }
+
+      const res = await fetch(`/api/download?platform=${platform}&url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+
+      if (data.success) {
+        window.open(data.download, "_blank");
+      } else {
+        alert("Download failed!");
+      }
+    }
+  </script>
+</body>
+</html>
